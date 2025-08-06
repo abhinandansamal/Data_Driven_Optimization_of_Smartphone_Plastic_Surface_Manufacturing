@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defect Rate Predictor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Smartphone Plastic Defect Rate Predictor</h1>
+        <p>Enter the production parameters to predict the potential defect rate.</p>
+        
+        <form id="prediction-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="downtime">Downtime (Minutes)</label>
+                    <input type="number" id="downtime" value="60">
+                </div>
+                <div class="form-group">
+                    <label for="quality">Raw Material Quality (Score)</label>
+                    <input type="number" id="quality" value="85">
+                </div>
+                <div class="form-group">
+                    <label for="temp">Temperature (°C)</label>
+                    <input type="number" id="temp" value="215">
+                </div>
+                 <div class="form-group">
+                    <label for="pressure">Pressure (Pa)</label>
+                    <input type="number" id="pressure" value="6500">
+                </div>
+                <div class="form-group">
+                    <label for="cooling">Cooling Rate (°C/min)</label>
+                    <input type="number" id="cooling" value="5">
+                </div>
+                <div class="form-group">
+                    <label for="speed">Machine Speed (RPM)</label>
+                    <input type="number" id="speed" value="1500">
+                </div>
+                 <div class="form-group">
+                    <label for="humidity">Humidity (%)</label>
+                    <input type="number" id="humidity" value="55">
+                </div>
+                <div class="form-group">
+                    <label for="ambient">Ambient Temp (°C)</label>
+                    <input type="number" id="ambient" value="25">
+                </div>
+                 <div class="form-group">
+                    <label for="maintenance">Maintenance (Days Since)</label>
+                    <input type="number"id="maintenance" value="30">
+                </div>
+                <div class="form-group">
+                    <label for="batch">Batch Size (Units)</label>
+                    <input type="number" id="batch" value="100">
+                </div>
+                 <div class="form-group">
+                    <label for="energy">Energy Consumption (kWh)</label>
+                    <input type="number" id="energy" value="55">
+                </div>
+                <div class="form-group">
+                    <label for="shift">Operator Shift</label>
+                    <select id="shift">
+                        <option>Night</option>
+                        <option>Day</option>
+                    </select>
+                </div>
+                 <div class="form-group">
+                    <label for="line">Production Line</label>
+                    <select id="line">
+                        <option>Line 1</option>
+                        <option>Line 2</option>
+                        <option>Line 3</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit">Predict Defect Rate</button>
+        </form>
+
+        <div id="result-container" style="display:none;">
+            <h2>Predicted Defect Rate: <span id="result"></span></h2>
+            <p id="insight"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('prediction-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const data = [{
+                "Downtime (Minutes)": parseFloat(document.getElementById('downtime').value),
+                "Raw Material Quality (Score)": parseFloat(document.getElementById('quality').value),
+                "Temperature (°C)": parseFloat(document.getElementById('temp').value),
+                "Pressure (Pa)": parseFloat(document.getElementById('pressure').value),
+                "Cooling Rate (°C/min)": parseFloat(document.getElementById('cooling').value),
+                "Machine Speed (RPM)": parseFloat(document.getElementById('speed').value),
+                "Humidity (%)": parseFloat(document.getElementById('humidity').value),
+                "Ambient Temperature (°C)": parseFloat(document.getElementById('ambient').value),
+                "Maintenance (Days Since)": parseFloat(document.getElementById('maintenance').value),
+                "Batch Size (Units)": parseFloat(document.getElementById('batch').value),
+                "Energy Consumption (kWh)": parseFloat(document.getElementById('energy').value),
+                "Operator Shift": document.getElementById('shift').value,
+                "Production Line": document.getElementById('line').value
+            }];
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            
+            if (result.predicted_defect_rate) {
+                const defectRate = result.predicted_defect_rate[0];
+                document.getElementById('result').textContent = defectRate.toFixed(2) + '%';
+                
+                let insightText = '';
+                if (defectRate > 5) {
+                    insightText = 'High Risk: This combination of parameters is likely to result in a high number of defects. Consider reducing downtime or improving raw material quality.';
+                    document.getElementById('result').style.color = '#e74c3c';
+                } else if (defectRate > 2) {
+                    insightText = 'Moderate Risk: Some defects are likely. Monitor the process closely.';
+                     document.getElementById('result').style.color = '#f39c12';
+                } else {
+                    insightText = 'Low Risk: Process parameters appear optimal for low defect rates.';
+                    document.getElementById('result').style.color = '#2ecc71';
+                }
+                document.getElementById('insight').textContent = insightText;
+                document.getElementById('result-container').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
