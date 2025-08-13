@@ -122,8 +122,8 @@ For a more robust, production-oriented deployment, the model was also packaged a
     │   └── utils.py
     ├── static/
     │   └── style.css                # CSS for the web application
-    └── templates/
-        └── index.html               # HTML for the web application
+    ├── templates/
+    │   └── index.html               # HTML for the web application
     ├── test/
     │   ├── business_impact_scenario_1.ipynb
     │   ├── business_impact_scenario_2.ipynb
@@ -134,7 +134,7 @@ For a more robust, production-oriented deployment, the model was also packaged a
     ├── streamlit_app.py           # Streamlit API script for the web application    
     ├── Dockerfile                 # Instructions for building the Docker container
     ├── requirements.txt           # Python dependencies
-    ├── LICENSE                    # MIT License
+    └── LICENSE                    # MIT License
 
 ## Technologies Used
 * **Data Analysis & Modeling:** Python, pandas, NumPy, scikit-learn, Matplotlib, Seaborn
